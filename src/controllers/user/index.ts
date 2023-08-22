@@ -1,65 +1,43 @@
-import type { RequestHandler } from "express";
-import User from "./../../models/user";
-import dbConnect from "./../../utils/dbConnect";
-import errorHandler from "./../../middlewares/errorHandler";
-import * as bcrypt from "bcrypt";
-import sendEmail from "./../../utils/sendEmail";
+// import type { RequestHandler } from "express";
+// import dbConnect from "./../../utils/dbConnect";
+// import errorHandler from "middlewares/errorHandler";
 
-export const createUser: RequestHandler = async (req, res) => {
-  // get the data from the request body
-  const { name, email, mobile, password, role } = req.body;
+// /**
+//  * @controller getUser
+//  * @desc Get a user by id
+//  * @route GET /api/user/:id
+//  * @access Private
+//  */
+// export const getUser: RequestHandler = async (req, res) => {
+//   // get the id from the request parameters
+//   const { id } = req.params;
 
-  // get the users collection
-  const { client, usersCollection } = await dbConnect();
+//   // get the users collection
+//   const { client, usersCollection } = await dbConnect();
 
-  // check if the user already exists
-  const existingUser = await usersCollection.findOne({ email });
+//   // get the user
+//   // const user = await usersCollection.findOne({ _id: id });
 
-  // if the user exists, return an error
-  if (existingUser) {
-    errorHandler(
-      {
-        statusCode: 400,
-        type: "Bad Request",
-        message: "user already exists",
-      },
-      req,
-      res
-    );
-  } else {
-    // hash the password
-    const hashedPassword = await bcrypt.hash(password, 12);
-    // create a new user
-    const user = new User(name, email, mobile, hashedPassword, role);
+//   // close the connection to the database
+//   await client.close();
 
-    // save the user to the database
-    await usersCollection.insertOne(user);
-
-    // close the connection to the database
-    client.close();
-
-    // send a welcome email
-    await sendEmail(
-      email,
-      "Welcome to the Tailor Shop",
-      "Welcome to the Tailor Shop"
-    );
-
-    // return 201 and the user object
-    res.status(201).json({ user });
-  }
-};
-
-export const getUsers: RequestHandler = async (req, res) => {
-  // get the users collection
-  const { client, usersCollection } = await dbConnect();
-
-  // get all the users
-  const users = await usersCollection.find().toArray();
-
-  // close the connection to the database
-  client.close();
-
-  // return 200 and the users array
-  res.status(200).json({ users });
-};
+//   // check if the user exists
+//   // if (!user) {
+//   //     // if the user does not exist, return an error
+//   //     errorHandler(
+//   //         {
+//   //             statusCode: 400,
+//   //             type: "Bad Request",
+//   //             message: "User does not exist",
+//   //         },
+//   //         req,
+//   //         res
+//   //     );
+//   // } else {
+//   //     // if the user exists, return the user
+//   //     res.status(200).json({
+//   //         success: true,
+//   //         data: user,
+//   //     });
+//   // }
+// };

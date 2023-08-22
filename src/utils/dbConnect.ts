@@ -18,8 +18,11 @@ const dbConnect = async () => {
   // get the users collection
   const usersCollection = database.collection("users");
 
+  // get the pets collection
+  const petsCollection = database.collection("pets");
+
   // return the users collection
-  return { client, usersCollection };
+  return { client, usersCollection, petsCollection };
 };
 
 export default dbConnect;

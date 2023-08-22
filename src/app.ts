@@ -1,9 +1,10 @@
 import express, { json } from "express";
-import userRouter from "./routes/user";
+// import userRouter from "./routes/user";
 import authRouter from "./routes/auth";
 import checkAuth from "./middlewares/checkAuth";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import petRouter from "./routes/pet";
 
 const app = express();
 
@@ -16,12 +17,10 @@ app.use(cookieParser());
 
 // public routes
 app.use("/auth", authRouter);
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
 
 // protected routes
 app.use(checkAuth);
-app.use("/user", userRouter);
+app.use("/pet", petRouter);
+// app.use("/user", userRouter);
 
 export default app;

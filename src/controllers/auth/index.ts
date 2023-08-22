@@ -3,7 +3,84 @@ import dbConnect from "./../../utils/dbConnect";
 import errorHandler from "./../../middlewares/errorHandler";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import User from "./../../models/user";
 
+/**
+ * @controller signup
+ * @desc Register a new user
+ * @route POST /api/auth/register
+ * @access Public
+ */
+export const signup: RequestHandler = async (req, res) => {
+  // get the username, email and password from the request body
+  const { username, email, password } = req.body;
+
+  // get the users collection
+  const { client, usersCollection } = await dbConnect();
+
+  // check user already exists
+  const user = await usersCollection.findOne({ email });
+
+  // if the user exists,
+  if (user) {
+    // close the connection to the database
+    await client.close();
+
+    // return an error
+    errorHandler(
+      {
+        statusCode: 400,
+        type: "Bad Request",
+        message: "User already exists",
+      },
+      req,
+      res
+    );
+  } else {
+    // if the user does not exist, hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // create a new user object
+    const newUser = new User(username, email, hashedPassword);
+
+    // insert the new user into the database
+    const result = await usersCollection.insertOne(newUser);
+
+    console.log(result);
+
+    // close the connection to the database
+    await client.close();
+
+    // create a token
+    const token = jwt.sign({ id: result.insertedId }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+
+    // set the token in the cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production" ? true : false,
+    });
+
+    // return 201 and the new user
+    res.status(201).json({
+      status: "success",
+      data: {
+        message: "User created successfully",
+        user: {
+          id: result.insertedId,
+        },
+      },
+    });
+  }
+};
+
+/**
+ * @controller Login
+ * @desc Login a user
+ * @route POST /api/auth/login
+ * @access Public
+ */
 export const login: RequestHandler = async (req, res) => {
   // get the email and password from the request body
   const { email, password } = req.body;
