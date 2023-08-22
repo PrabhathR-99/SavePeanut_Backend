@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import Pet from "./../../models/pet";
 import dbConnect from "./../../utils/dbConnect";
 import errorHandler from "./../../middlewares/errorHandler";
+import { ObjectId } from "mongodb";
 
 /**
  * @controller createPet
@@ -76,3 +77,20 @@ export const getPets: RequestHandler = async (req, res) => {
     data: pets,
   });
 };
+
+/**
+ * @controller getPet
+ * @desc Get a pet by id
+ * @route GET /api/pets/:id
+ * @access Private
+ * */
+// export const getPet: RequestHandler = async (req, res) => {
+//     // get the id from the request parameters
+//     const { id } = req.params;
+
+//     // get the pets collection
+//     const { client, petsCollection } = await dbConnect();
+
+//     // get the pet
+//     const pet = petsCollection.findOne({ _id: id });
+// };
