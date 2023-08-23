@@ -12,47 +12,30 @@ import { ObjectId } from "mongodb";
  */
 export const createPet: RequestHandler = async (req, res) => {
   // get the pet details from the request body
-  const { _id, age, gender, location, mobile } = req.body;
+  const { age, gender, location, phoneNumber, image } = req.body;
 
   // get the pets collection
   const { client, petsCollection } = await dbConnect();
 
-  // check if the pet exists
-  const pet = await petsCollection.findOne({ _id });
+  // create a new pet
+  const newPet = new Pet(age, gender, location, phoneNumber, image);
 
-  // if the pet exists,
-  if (pet) {
-    // return an error
-    errorHandler(
-      {
-        statusCode: 400,
-        type: "Bad Request",
-        message: "Pet already exists",
+  // insert the new pet into the database
+  const result = await petsCollection.insertOne(newPet);
+
+  // close the connection to the database
+  await client.close();
+
+  // return 201 and the new pet
+  res.status(201).json({
+    success: true,
+    data: {
+      message: "Pet created successfully",
+      pet: {
+        id: result.insertedId,
       },
-      req,
-      res
-    );
-  } else {
-    // create a new pet
-    const newPet = new Pet(_id, age, gender, location, mobile);
-
-    // insert the new pet into the database
-    const result = await petsCollection.insertOne(newPet);
-
-    // close the connection to the database
-    await client.close();
-
-    // return 201 and the new pet
-    res.status(201).json({
-      success: true,
-      data: {
-        message: "Pet created successfully",
-        pet: {
-          id: result.insertedId,
-        },
-      },
-    });
-  }
+    },
+  });
 };
 
 /**

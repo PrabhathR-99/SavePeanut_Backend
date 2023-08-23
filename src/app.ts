@@ -19,7 +19,7 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 
 // protected routes
-app.use(checkAuth);
+// app.use(checkAuth);
 app.use("/pet", petRouter);
 // app.use("/user", userRouter);
 
